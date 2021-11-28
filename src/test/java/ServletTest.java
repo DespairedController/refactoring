@@ -1,9 +1,10 @@
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import ru.akirakozov.sd.refactoring.dao.ProductDAO;
+import ru.akirakozov.sd.refactoring.dao.ProductDAOTestDB;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
 import ru.akirakozov.sd.refactoring.servlet.GetProductsServlet;
 import ru.akirakozov.sd.refactoring.servlet.QueryServlet;
@@ -13,17 +14,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServletTest {
-    private static final String DB_NAME = "jdbc:sqlite:test.db";
+    private ProductDAO productDAO;
 
     @Mock
     HttpServletRequest request;
@@ -35,17 +33,7 @@ public class ServletTest {
 
     @Before
     public void setUp() throws SQLException {
-        try (Connection c = DriverManager.getConnection(DB_NAME)) {
-            String sql = "CREATE TABLE IF NOT EXISTS PRODUCT" +
-                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                    " NAME           TEXT    NOT NULL, " +
-                    " PRICE          INT     NOT NULL)";
-            Statement stmt = c.createStatement();
-
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
-
+        productDAO = new ProductDAOTestDB();
     }
 
     protected void setUpResponseMock() throws IOException {
@@ -55,7 +43,7 @@ public class ServletTest {
 
     @Test
     public void testGet() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet();
+        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
         when(request.getParameter("price")).thenReturn("100").thenReturn("50");
         setUpResponseMock();
@@ -63,7 +51,7 @@ public class ServletTest {
         setUpResponseMock();
         addProductServlet.doGet(request, response);
         setUpResponseMock();
-        new GetProductsServlet().doGet(request, response);
+        new GetProductsServlet(productDAO).doGet(request, response);
         assertEquals(stringWriter.toString(),
                 "<html><body>\n" +
                         "apple\t100</br>\n" +
@@ -71,20 +59,9 @@ public class ServletTest {
                         "</body></html>\n");
     }
 
-    @After
-    public void dropDatabase() throws SQLException {
-        try (Connection c = DriverManager.getConnection(DB_NAME)) {
-            String sql = "DROP TABLE IF EXISTS PRODUCT";
-            Statement stmt = c.createStatement();
-
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
-    }
-
     @Test
     public void testMax() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet();
+        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("command")).thenReturn("max");
         when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
         when(request.getParameter("price")).thenReturn("100").thenReturn("50");
@@ -93,7 +70,7 @@ public class ServletTest {
         setUpResponseMock();
         addProductServlet.doGet(request, response);
         setUpResponseMock();
-        new QueryServlet().doGet(request, response);
+        new QueryServlet(productDAO).doGet(request, response);
 
         assertEquals(stringWriter.toString(),
                 "<html><body>\n" +
@@ -104,7 +81,7 @@ public class ServletTest {
 
     @Test
     public void testMin() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet();
+        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("command")).thenReturn("min");
         when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
         when(request.getParameter("price")).thenReturn("100").thenReturn("50");
@@ -113,7 +90,7 @@ public class ServletTest {
         setUpResponseMock();
         addProductServlet.doGet(request, response);
         setUpResponseMock();
-        new QueryServlet().doGet(request, response);
+        new QueryServlet(productDAO).doGet(request, response);
 
         assertEquals(stringWriter.toString(),
                 "<html><body>\n" +
@@ -124,7 +101,7 @@ public class ServletTest {
 
     @Test
     public void testCount() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet();
+        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("command")).thenReturn("count");
         when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
         when(request.getParameter("price")).thenReturn("100").thenReturn("50");
@@ -133,7 +110,7 @@ public class ServletTest {
         setUpResponseMock();
         addProductServlet.doGet(request, response);
         setUpResponseMock();
-        new QueryServlet().doGet(request, response);
+        new QueryServlet(productDAO).doGet(request, response);
 
         assertEquals(stringWriter.toString(),
                 "<html><body>\n" +
@@ -144,7 +121,7 @@ public class ServletTest {
 
     @Test
     public void testSum() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet();
+        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("command")).thenReturn("sum");
         when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
         when(request.getParameter("price")).thenReturn("100").thenReturn("50");
@@ -153,7 +130,7 @@ public class ServletTest {
         setUpResponseMock();
         addProductServlet.doGet(request, response);
         setUpResponseMock();
-        new QueryServlet().doGet(request, response);
+        new QueryServlet(productDAO).doGet(request, response);
 
         assertEquals(stringWriter.toString(),
                 "<html><body>\n" +

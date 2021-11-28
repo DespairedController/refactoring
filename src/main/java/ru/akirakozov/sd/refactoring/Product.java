@@ -2,6 +2,7 @@ package ru.akirakozov.sd.refactoring;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 
 public class Product {
     public String name;
@@ -18,6 +19,6 @@ public class Product {
 
     @Override
     public String toString() {
-        return this.name + "\t" + this.price;
+        return MessageFormat.format("{0}\t{1}</br>", this.name, this.price);
     }
 }

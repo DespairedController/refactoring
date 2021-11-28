@@ -61,7 +61,7 @@ public class QueryServlet extends HttpServlet {
             }
         } else if ("count".equals(command)) {
             try {
-                int count = productDAO.getSumPrice();
+                int count = productDAO.getCount();
                 response.getWriter().println("<html><body>");
                 response.getWriter().println("Number of products: ");
                 response.getWriter().println(count);

@@ -1,3 +1,4 @@
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.when;
 public class ServletTest {
     private ProductDAO productDAO;
 
+    private AddProductServlet addProductServlet;
+
     @Mock
     HttpServletRequest request;
 
@@ -32,8 +35,20 @@ public class ServletTest {
     StringWriter stringWriter;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws SQLException, IOException {
         productDAO = new ProductDAOTestDB();
+        addProductServlet = new AddProductServlet(productDAO);
+        when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
+        when(request.getParameter("price")).thenReturn("100").thenReturn("50");
+        setUpResponseMock();
+        addProductServlet.doGet(request, response);
+        setUpResponseMock();
+        addProductServlet.doGet(request, response);
+    }
+
+    @After
+    public void drop() throws SQLException {
+        productDAO.dropAll();
     }
 
     protected void setUpResponseMock() throws IOException {
@@ -43,13 +58,6 @@ public class ServletTest {
 
     @Test
     public void testGet() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
-        when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
-        when(request.getParameter("price")).thenReturn("100").thenReturn("50");
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
         setUpResponseMock();
         new GetProductsServlet(productDAO).doGet(request, response);
         assertEquals(stringWriter.toString(),
@@ -60,15 +68,8 @@ public class ServletTest {
     }
 
     @Test
-    public void testMax() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
+    public void testMax() throws IOException, SQLException {
         when(request.getParameter("command")).thenReturn("max");
-        when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
-        when(request.getParameter("price")).thenReturn("100").thenReturn("50");
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
@@ -80,15 +81,8 @@ public class ServletTest {
     }
 
     @Test
-    public void testMin() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
+    public void testMin() throws IOException, SQLException {
         when(request.getParameter("command")).thenReturn("min");
-        when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
-        when(request.getParameter("price")).thenReturn("100").thenReturn("50");
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
@@ -100,15 +94,8 @@ public class ServletTest {
     }
 
     @Test
-    public void testCount() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
+    public void testCount() throws IOException, SQLException {
         when(request.getParameter("command")).thenReturn("count");
-        when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
-        when(request.getParameter("price")).thenReturn("100").thenReturn("50");
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
@@ -121,14 +108,7 @@ public class ServletTest {
 
     @Test
     public void testSum() throws IOException {
-        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("command")).thenReturn("sum");
-        when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
-        when(request.getParameter("price")).thenReturn("100").thenReturn("50");
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
-        setUpResponseMock();
-        addProductServlet.doGet(request, response);
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 

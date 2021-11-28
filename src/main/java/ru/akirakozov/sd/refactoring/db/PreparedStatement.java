@@ -11,4 +11,6 @@ public interface PreparedStatement extends AutoCloseable {
 
     <T> List<T> executeQueryAll(ResultConsumer<T> consumer) throws SQLException;
 
+    @Override
+    void close() throws SQLException;
 }

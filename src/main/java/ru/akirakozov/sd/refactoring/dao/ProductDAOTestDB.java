@@ -2,7 +2,7 @@ package ru.akirakozov.sd.refactoring.dao;
 
 import ru.akirakozov.sd.refactoring.Product;
 import ru.akirakozov.sd.refactoring.db.Database;
-import ru.akirakozov.sd.refactoring.db.SQLitePreparedStatement;
+import ru.akirakozov.sd.refactoring.db.PreparedStatement;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,29 +18,29 @@ public class ProductDAOTestDB implements ProductDAO {
 
     @Override
     public void insert(String name, long price) throws SQLException {
-        try (SQLitePreparedStatement preparedStatement =
-                     DB.getPreparedStatement(MessageFormat.format("INSERT INTO PRODUCT (NAME, PRICE) VALUES ({0}, {1});", name, price))) {
+        try (PreparedStatement preparedStatement =
+                     DB.getPreparedStatement(MessageFormat.format("INSERT INTO PRODUCT (NAME, PRICE) VALUES (\"{0}\", \"{1}\");", name, price))) {
             preparedStatement.executeUpdate();
         }
     }
 
     @Override
     public List<Product> getAllProducts() throws SQLException {
-        try (SQLitePreparedStatement preparedStatement = DB.getPreparedStatement("SELECT * FROM PRODUCT")) {
+        try (PreparedStatement preparedStatement = DB.getPreparedStatement("SELECT * FROM PRODUCT")) {
             return preparedStatement.executeQueryAll(Product::fromResultSet);
         }
     }
 
     @Override
     public Product getMinPrice() throws SQLException {
-        try (SQLitePreparedStatement preparedStatement = DB.getPreparedStatement("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1")) {
+        try (PreparedStatement preparedStatement = DB.getPreparedStatement("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1")) {
             return preparedStatement.executeQueryOne(Product::fromResultSet);
         }
     }
 
     @Override
     public Product getMaxPrice() throws SQLException {
-        try (SQLitePreparedStatement preparedStatement = DB.getPreparedStatement("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1")) {
+        try (PreparedStatement preparedStatement = DB.getPreparedStatement("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1")) {
             return preparedStatement.executeQueryOne(Product::fromResultSet);
         }
     }
@@ -51,15 +51,22 @@ public class ProductDAOTestDB implements ProductDAO {
 
     @Override
     public int getSumPrice() throws SQLException {
-        try (SQLitePreparedStatement preparedStatement = DB.getPreparedStatement("SELECT SUM(price) FROM PRODUCT")) {
+        try (PreparedStatement preparedStatement = DB.getPreparedStatement("SELECT SUM(price) FROM PRODUCT")) {
             return preparedStatement.executeQueryOne(ProductDAOTestDB::getInt);
         }
     }
 
     @Override
     public int getCount() throws SQLException {
-        try (SQLitePreparedStatement preparedStatement = DB.getPreparedStatement("SELECT COUNT(price) FROM PRODUCT")) {
+        try (PreparedStatement preparedStatement = DB.getPreparedStatement("SELECT COUNT(*) FROM PRODUCT")) {
             return preparedStatement.executeQueryOne(ProductDAOTestDB::getInt);
+        }
+    }
+
+    @Override
+    public void dropAll() throws SQLException {
+        try (PreparedStatement preparedStatement = DB.getPreparedStatement("DROP TABLE IF EXISTS PRODUCT")) {
+            preparedStatement.executeUpdate();
         }
     }
 }

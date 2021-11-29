@@ -37,7 +37,7 @@ public class SQLitePreparedStatement implements PreparedStatement {
     @Override
     public <T> List<T> executeQueryAll(ResultConsumer<T> consumer) throws SQLException {
         try (ResultSet rs = preparedStatement.executeQuery()) {
-            List<T> objects = new ArrayList<T>();
+            List<T> objects = new ArrayList<>();
             while (rs.next()) {
                 objects.add(consumer.apply(rs));
             }

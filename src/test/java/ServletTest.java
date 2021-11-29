@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 public class ServletTest {
     private ProductDAO productDAO;
 
-    private AddProductServlet addProductServlet;
-
     @Mock
     HttpServletRequest request;
 
@@ -37,7 +35,7 @@ public class ServletTest {
     @Before
     public void setUp() throws SQLException, IOException {
         productDAO = new ProductDAOTestDB();
-        addProductServlet = new AddProductServlet(productDAO);
+        AddProductServlet addProductServlet = new AddProductServlet(productDAO);
         when(request.getParameter("name")).thenReturn("apple").thenReturn("banana");
         when(request.getParameter("price")).thenReturn("100").thenReturn("50");
         setUpResponseMock();
@@ -68,7 +66,7 @@ public class ServletTest {
     }
 
     @Test
-    public void testMax() throws IOException, SQLException {
+    public void testMax() throws IOException {
         when(request.getParameter("command")).thenReturn("max");
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
@@ -81,7 +79,7 @@ public class ServletTest {
     }
 
     @Test
-    public void testMin() throws IOException, SQLException {
+    public void testMin() throws IOException {
         when(request.getParameter("command")).thenReturn("min");
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);

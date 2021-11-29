@@ -16,7 +16,7 @@ public interface ProductDAO {
 
     int getSumPrice() throws SQLException;
 
-    int getCount() throws Exception;
+    int getCount() throws SQLException;
 
     void dropAll() throws SQLException;
 }

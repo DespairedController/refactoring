@@ -60,11 +60,11 @@ public class ServletTest {
     public void testGet() throws IOException {
         setUpResponseMock();
         new GetProductsServlet(productDAO).doGet(request, response);
-        assertEquals(stringWriter.toString(),
-                "<html><body>\n" +
+        assertEquals("<html><body>\n" +
                         "apple\t100</br>\n" +
                         "banana\t50</br>\n" +
-                        "</body></html>\n");
+                        "</body></html>\n",
+                stringWriter.toString());
     }
 
     @Test
@@ -73,11 +73,11 @@ public class ServletTest {
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
-        assertEquals(stringWriter.toString(),
-                "<html><body>\n" +
+        assertEquals("<html><body>\n" +
                         "<h1>Product with max price: </h1>\n" +
                         "apple\t100</br>\n" +
-                        "</body></html>\n");
+                        "</body></html>\n",
+                stringWriter.toString());
     }
 
     @Test
@@ -86,24 +86,24 @@ public class ServletTest {
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
-        assertEquals(stringWriter.toString(),
-                "<html><body>\n" +
+        assertEquals("<html><body>\n" +
                         "<h1>Product with min price: </h1>\n" +
                         "banana\t50</br>\n" +
-                        "</body></html>\n");
+                        "</body></html>\n",
+                stringWriter.toString());
     }
 
     @Test
-    public void testCount() throws IOException, SQLException {
+    public void testCount() throws IOException {
         when(request.getParameter("command")).thenReturn("count");
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
-        assertEquals(stringWriter.toString(),
-                "<html><body>\n" +
-                        "Number of products: \n" +
+        assertEquals("<html><body>\n" +
+                        "<h1>Number of products: </h1>\n" +
                         "2\n" +
-                        "</body></html>\n");
+                        "</body></html>\n",
+                stringWriter.toString());
     }
 
     @Test
@@ -112,10 +112,10 @@ public class ServletTest {
         setUpResponseMock();
         new QueryServlet(productDAO).doGet(request, response);
 
-        assertEquals(stringWriter.toString(),
-                "<html><body>\n" +
-                        "Summary price: \n" +
+        assertEquals("<html><body>\n" +
+                        "<h1>Summary price: </h1>\n" +
                         "150\n" +
-                        "</body></html>\n");
+                        "</body></html>\n",
+                stringWriter.toString());
     }
 }

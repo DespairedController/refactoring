@@ -1,20 +1,16 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
-import ru.akirakozov.sd.refactoring.Product;
 import ru.akirakozov.sd.refactoring.dao.ProductDAO;
+import ru.akirakozov.sd.refactoring.html.DocumentBuilder;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.function.BiConsumer;
+import java.sql.SQLException;
 
 /**
- * @author akirakozov
+ * @author akirakozov, despairedController
  */
 public class QueryServlet extends HttpServlet {
 
@@ -30,50 +26,47 @@ public class QueryServlet extends HttpServlet {
 
         if ("max".equals(command)) {
             try {
-                Product maxPrice = productDAO.getMaxPrice();
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("<h1>Product with max price: </h1>");
-                response.getWriter().println(maxPrice.toString());
-                response.getWriter().println("</body></html>");
+                printWithHeader(productDAO::getMaxPrice, "Product with max price: ", response);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
         } else if ("min".equals(command)) {
             try {
-                Product minPrice = productDAO.getMinPrice();
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("<h1>Product with min price: </h1>");
-                response.getWriter().println(minPrice.toString());
-                response.getWriter().println("</body></html>");
+                printWithHeader(productDAO::getMinPrice, "Product with min price: ", response);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else if ("sum".equals(command)) {
             try {
-                int sum = productDAO.getSumPrice();
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("Summary price: ");
-                response.getWriter().println(sum);
-                response.getWriter().println("</body></html>");
+                printWithHeader(productDAO::getSumPrice, "Summary price: ", response);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else if ("count".equals(command)) {
-            try {
-                int count = productDAO.getCount();
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("Number of products: ");
-                response.getWriter().println(count);
-                response.getWriter().println("</body></html>");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            printWithHeader(productDAO::getCount, "Number of products: ", response);
         } else {
             response.getWriter().println("Unknown command: " + command);
         }
 
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    private <T> void printWithHeader(SupplierWithIO<T> s, String header, HttpServletResponse response) {
+        try {
+            T result = s.get();
+            DocumentBuilder document = new DocumentBuilder();
+            document.addH1(header);
+            document.addLine(result.toString());
+            response.getWriter().println(document);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FunctionalInterface
+    private interface SupplierWithIO<T> {
+        T get() throws SQLException, IOException;
     }
 }
